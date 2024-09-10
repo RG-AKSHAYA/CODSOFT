@@ -1,0 +1,73 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+void displayMenu() {
+    cout << "-----------------------------" << endl;
+    cout << "|       SIMPLE CALCULATOR    |" << endl;
+    cout << "-----------------------------" << endl;
+    cout << "| Operations:                |" << endl;
+    cout << "|   1. Addition       (+)     |" << endl;
+    cout << "|   2. Subtraction    (-)     |" << endl;
+    cout << "|   3. Multiplication (*)     |" << endl;
+    cout << "|   4. Division       (/)     |" << endl;
+    cout << "|   5. Exit                  |" << endl;
+    cout << "-----------------------------" << endl;
+    cout << "Please choose an operation: ";
+}
+
+void performCalculation(char operation) {
+    float num1, num2;
+
+    cout << "Enter the first number: ";
+    cin >> num1;
+    cout << "Enter the second number: ";
+    cin >> num2;
+
+    switch (operation) {
+        case '+':
+            cout << "Result: " << num1 << " + " << num2 << " = " << num1 + num2 << endl;
+            break;
+        case '-':
+            cout << "Result: " << num1 << " - " << num2 << " = " << num1 - num2 << endl;
+            break;
+        case '*':
+            cout << "Result: " << num1 << " * " << num2 << " = " << num1 * num2 << endl;
+            break;
+        case '/':
+            if (num2 != 0) {
+                cout << "Result: " << num1 << " / " << num2 << " = " << num1 / num2 << endl;
+            } else {
+                cout << "Error! Division by zero is not allowed." << endl;
+            }
+            break;
+        default:
+            cout << "Error! Invalid operation." << endl;
+            break;
+    }
+}
+
+int main() {
+    char operation;
+    bool exit = false;
+
+    while (!exit) {
+        displayMenu();
+        cin >> operation;
+
+        if (operation == '5') {
+            cout << "Exiting the calculator. Goodbye!" << endl;
+            exit = true;
+        } else {
+            if (operation == '+' || operation == '-' || operation == '*' || operation == '/') {
+                performCalculation(operation);
+            } else {
+                cout << "Invalid option! Please choose a valid operation (1-5)." << endl;
+            }
+        }
+
+        cout << endl;
+    }
+
+    return 0;
+}
