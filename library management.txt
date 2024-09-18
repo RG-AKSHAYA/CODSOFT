@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm> // Include this for remove_if
+#include <ctime>
+
+using namespace std;
+
+struct Book {
+    string title;
+    string author;
+    string ISBN;
+    bool isAvailable = true;
+    time_t checkoutDate = 0;
+};
+
+struct Borrower {
+    string name;
+    string borrowedISBN;
+};
+
+vector<Book> books;
+vector<Borrower> borrowers;
+
+void addBook(const string& title, const string& author, const string& ISBN) {
+    books.push_back({title, author, ISBN, true});
+}
+
+void viewBooks() {
+    for (const auto& book : books) {
+        cout << "Title: " << book.title << ", Author: " << book.author 
+             << ", ISBN: " << book.ISBN << ", Status: " 
+             << (book.isAvailable ? "Available" : "Checked out") << endl;
+    }
+}
+
+void searchBook(const string& query) {
+    for (const auto& book : books) {
+        if (book.title == query || book.author == query || book.ISBN == query) {
+            cout << "Found - Title: " << book.title << ", Author: " << book.author 
+                 << ", ISBN: " << book.ISBN << ", Status: " 
+                 << (book.isAvailable ? "Available" : "Checked out") << endl;
+        }
+    }
+}
+
+void checkoutBook(const string& ISBN, const string& borrowerName) {
+    for (auto& book : books) {
+        if (book.ISBN == ISBN && book.isAvailable) {
+            book.isAvailable = false;
+            book.checkoutDate = time(0);
+            borrowers.push_back({borrowerName, ISBN});
+            cout << borrowerName << " checked out \"" << book.title << "\"." << endl;
+            return;
+        }
+    }
+    cout << "Book is either not available or not found." << endl;
+}
+
+void returnBook(const string& ISBN) {
+    for (auto& book : books) {
+        if (book.ISBN == ISBN && !book.isAvailable) {
+            time_t returnDate = time(0);
+            int daysOverdue = (returnDate - book.checkoutDate) / (60 * 60 * 24) - 14; // 14 days limit
+            if (daysOverdue > 0) {
+                cout << "Book is overdue by " << daysOverdue << " days. Fine: $" << daysOverdue * 0.5 << endl;
+            } else {
+                cout << "Book returned on time." << endl;
+            }
+            book.isAvailable = true;
+            book.checkoutDate = 0;
+            borrowers.erase(remove_if(borrowers.begin(), borrowers.end(), [&ISBN](Borrower& b) {
+                return b.borrowedISBN == ISBN;
+            }), borrowers.end());
+            return;
+        }
+    }
+    cout << "Book not found or was not checked out." << endl;
+}
+
+int main() {
+    int choice;
+    string title, author, ISBN, borrowerName;
+
+    addBook("The Catcher in the Rye", "J.D. Salinger", "123456789");
+    addBook("To Kill a Mockingbird", "Harper Lee", "987654321");
+    addBook("1984", "George Orwell", "123987654");
+
+    do {
+        cout << "Library System Menu:" << endl;
+        cout << "1. View Books" << endl;
+        cout << "2. Search Book" << endl;
+        cout << "3. Checkout Book" << endl;
+        cout << "4. Return Book" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1:
+                viewBooks();
+                break;
+            case 2:
+                cout << "Enter title, author, or ISBN to search: ";
+                getline(cin, title);
+                searchBook(title);
+                break;
+            case 3:
+                cout << "Enter ISBN of the book to checkout: ";
+                getline(cin, ISBN);
+                cout << "Enter borrower's name: ";
+                getline(cin, borrowerName);
+                checkoutBook(ISBN, borrowerName);
+                break;
+            case 4:
+                cout << "Enter ISBN of the book to return: ";
+                getline(cin, ISBN);
+                returnBook(ISBN);
+                break;
+            case 5:
+                cout << "Exiting..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 5);
+
+    return 0;
+}
